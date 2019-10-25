@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<head>
+        <link rel="stylesheet" href="/css/logincss1.css">
+        <title>Template</title>
+</head>
+<body>
+    
+<div class="header" id="myHeader">
+    <div class="logo">
+        
+    <p>Parking Company</p></div>
+    <div class="menu">
+        <nav>
+                <ul>
+                        <li class="dropdown"><a>Parking Layout Maintenance</a>
+                            <div class="dropdown-content">
+                                    <a href="createNewLayout.html">Create New Parking layout</a>
+                                    <a href="modifyExistingLayout.html">Manage Parking layout</a>
+                                    <a href="manageSlotStatus.html">Manage Parking slot status</a>
+                            </div>
+                            <li class="dropdown"><a>Manage User</a>
+                                <div class="dropdown-content">
+                                        <a href="registerNewStaff.html">Register New Staff</a>
+                                        <a href="manageUser.html">Manage Staff Role</a>
+                                </div>
+                        </li>
+                    </ul>
+        </nav></div>
+</div>
+<div class="container">
+<div class="sub-title">
+    <p>Title</p>
+</div>
+<div class="content">
+        <form action="/staff/Dashboard.html">
+            <label>Field 1</label>
+            <input type="text" name="email" placeholder="Please enter your field 1.">
+            
+                <label>Field 2</label>
+                <input type="password" name="password" placeholder="Please enter your field 2.">
+                <button onClick="login()">Submit</button>
+        </form>
+</div>
+</div>
+
+</body>

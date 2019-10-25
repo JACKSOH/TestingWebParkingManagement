@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<header>
+    
+    <title>
+        Canvas example
+    </title>
+    <style>
+        .component-container {
+            width: 100%;
+            height: 100px;
+            background-color: cornsilk;
+            margin: 90px;
+        }
+    </style>
+</header>
+
+<body>
+
+    <canvas id="component-canvas" width="600" height="100" style="background-color: darkgray">
+
+    </canvas>
+
+    <canvas id="editor-canvas" width="600" height="600" style="background-color: burlywood"></canvas>
+    <button onclick="addRect()">Add</button>
+    <label id="count">1</label>
+    locationX: <label id="message">1</label>
+    <script>
+        var ec, cc, canvas = false;
+        var comps = [];
+        var rects = [];
+        var isDragging = false;
+        var EcanvasWidth = 0;
+        var EcanvasHeight = 0;
+        var drag=false;
+        var x = 75;
+        var y = 50;
+
+        var initX = 20;
+        var initY = 20;
+
+        // var comp = {
+        //     x: 12,
+        //     y: 12,
+        //     width: 200,
+        //     height: 200
+        // };
+        // makeComponent(20, 20, 290, 300, "exit"); // exit 
+        // function makeComponent(x, y, width, height, name) {
+        //     var comp = {
+        //         x: x,
+        //         y: y,
+        //         width: width,
+        //         height: height,
+        //         name: name
+        //     }
+
+        //     comps.push(comp);
+        //     return (comp);
+        // }
+
+
+        // function draggedComponent() {
+
+        // }
+        function rectForEditor(x, y, width, height) {
+
+            ec.beginPath();
+            ec.lineWidth = "6";
+            ec.strokeStyle = "red";
+            ec.rect(x, y, width, height);
+            ec.stroke();
+        }
+
+        function rectForComponent(x, y, width, height) {
+            cc.beginPath();
+            cc.lineWidth = "4";
+            cc.strokeStyle = "blue";
+            cc.rect(x, y, width, height);
+            cc.stroke();
+        }
+        function draw() {
+            
+            rectForComponent(x , y , 40, 40);
+        }
+        function addRect() {
+
+            r = rectForEditor(initX, initY, 40, 40);
+            initX += 20;
+            initY += 20;
+            rects.push(r);
+            document.getElementById("count").innerHTML = rects.length;
+        }
+        function mouseDown(e) {
+            
+                x = e.pageX ;
+                y = e.pageY ;
+                dragok = true;
+                Ccanvas.onmousemove = mouseMove;
+
+            document.getElementById("message").innerHTML = Ecanvas.offsetLeft;
+            
+        }
+        function mouseUp(e) {
+            dragok=false;
+        }
+        function mouseMove(e) {
+            if (dragok) {
+                x = e.pageX ;
+                y = e.pageY ;
+            }
+        }
+        function init() {
+            //For editor canvas
+            Ecanvas = document.getElementById("editor-canvas");
+            
+            ec = Ecanvas.getContext("2d"); //ec stand for editor canvas
+
+            //For component canvas
+            Ccanvas = document.getElementById("component-canvas");
+            cc = Ccanvas.getContext("2d"); // cc stand for component canvas
+            rectForComponent(10, 10, 40, 40);
+            return setInterval(draw,10);
+        }
+        init();
+        Ccanvas.onmousedown = mouseDown;
+        Ccanvas.onmouseup = mouseUp;
+        Ccanvas.onmousemove = mouseMove;
+    </script>
+</body>
+
+</html>
