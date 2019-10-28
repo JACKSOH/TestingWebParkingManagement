@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+        <script src="https://www.gstatic.com/firebasejs/7.2.1/firebase.js"></script>
+ 
+<div id="loginContainer" >
+    <h2>Login</h2>
+    Email: <input type="text" id="loginEmail"/><br/>
+    Password:<input type="password" id="loginPassword"><br/>
+    <button onclick="login()">Login</button>
+
+</div>
+<label id="welcome">Welcome, </label>
+ <div id="registerContainer">
+  <h2>Staff Register</h2>
+    Email<input type="text" id="email" required="required"/><br/>
+    Name<input type="text" id="name" required="required"/><br/>
+    password<input type="password" id="password" required="required"/><br/>
+    Confirm password<input type="password" id="confirmPassword" required="required"/><br/>
+    Phone<input type="text" id="phone" /><br/>
+    Role <select id="role">
+        <option>Admin</option>
+        <option>Staff</option>
+    </select>
+    <button onclick="registerStaff()" id="submit">Submit</button>
+    <button onclick="registerNewStaff()" id="submit">Register Second Staff</button>
+    <br/><button onclick="showCurrentUser()" id="submit">Register Second Staff</button>
+</div>
+<div id="manageContainer">
+<h2>Manage Role</h2>
+
+    <table>
+        <tr>
+            <th>No.</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+        </tr>
+        <script>
+            function getAllUser(){
+                    var u = [];
+                    firebase.database().ref("users").orderByChild();
+
+            }
+        </script>
+        <tr></tr>
+    </table>
+</div>
+<script src="firebase.js"></script>
+</body>
+
+</html>
