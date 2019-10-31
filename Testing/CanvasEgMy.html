@@ -112,14 +112,14 @@
         }
         function init() {
             //For editor canvas
-            Ecanvas = document.getElementById("editor-canvas");
-            
+            var Ecanvas = document.getElementById("editor-canvas");
+            alert(Ecanvas);
             ec = Ecanvas.getContext("2d"); //ec stand for editor canvas
-
+            alert(); 
             //For component canvas
             Ccanvas = document.getElementById("component-canvas");
             cc = Ccanvas.getContext("2d"); // cc stand for component canvas
-            rectForComponent(10, 10, 40, 40);
+           
             return setInterval(draw,10);
         }
         init();

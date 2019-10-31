@@ -210,5 +210,8 @@ function changeRole(changedRole, uid) {
     alert("update successfully");
 
 }
+function authenticateAdmin(role) {
+    
+}
 
 
