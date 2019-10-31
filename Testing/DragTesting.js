@@ -36,6 +36,7 @@ function draw() {
     rects.forEach(function (entry) {
         rectForEditor(entry.x, entry.y, entry.w, entry.h);
     });
+    document.getElementById("message").innerHTML = rects[0].x;
 }
 function init() {
     touch = false;
@@ -47,13 +48,14 @@ function init() {
     return setInterval(draw, 1);
 }
 function mouseDown(e) {
+    
     mouseOnCanvas = new getMousePos(Ecanvas, e);
     var mx = mouseOnCanvas.x;
     var my = mouseOnCanvas.y;
     startX = mx;
     startY = my;
     dragok = true;
-    Ecanvas.onmousemove = mouseMove;
+    
 }
 function mouseUp(e) {
     dragok = false;
@@ -83,7 +85,7 @@ function mouseMove(e) {
             rects[touchNo].y += dy;
                 
         } else { //no touch
-            document.getElementById("message").innerHTML = rects.length;
+            
             for (var i = 0; i < rects.length; i++) {
                 var r = rects[i];
                 if (mx > r.x && mx < r.x + r.w && my > r.y && my < r.y + r.h) {

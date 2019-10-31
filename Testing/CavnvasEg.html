@@ -1,10 +1,17 @@
 <!doctype html>
 <html>
 <head>
+<link rel="stylesheet" type="text/css" media="all" href="css/reset.css" /> <!-- reset css -->
+<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
 
 <style>
-    body{ background-color: ivory; }
+    body{ background-color: ivory; padding:10px; }
     canvas{border:1px solid red;}
+    #canvas { 
+    }
+    #canvas:active { 
+        cursor: move;
+    }
 </style>
 
 <script>
@@ -12,105 +19,152 @@ $(function(){
 
     var canvas=document.getElementById("canvas");
     var ctx=canvas.getContext("2d");
-    ctx.strokeStyle="lightgray";
+    var drop=document.getElementById("dropzone");
+    var dropCtx=drop.getContext("2d");
 
     var canvasOffset=$("#canvas").offset();
     var offsetX=canvasOffset.left;
     var offsetY=canvasOffset.top;
 
     var mouseIsDown=false;
-    var lastX=0;
-    var lastY=0;
+    var frameWidth=128;
+    var frameHeight=128;
+    // checkmark for selected
+    var checkmark=document.createElement("img");
+    checkmark.src="https://dl.dropboxusercontent.com/u/139992952/stackoverflow/smallCheckmark.png";
 
-    var ships=[];
+    var images=[];
+    var items=[];
+    items.push({description:"House#1",url:"https://dl.dropboxusercontent.com/u/139992952/stackoverflow/house1.jpg",isSelected:false,isDropped:false,x:0,y:0});
+    items.push({description:"House#2",url:"https://dl.dropboxusercontent.com/u/139992952/stackoverflow/house2.jpg",isSelected:false,isDropped:false,x:0,y:0});
+    items.push({description:"House#3",url:"https://dl.dropboxusercontent.com/u/139992952/stackoverflow/house3.jpg",isSelected:false,isDropped:false,x:0,y:0});
 
-    // make some ship
-    makeShip(20,30,50,25,"skyblue");
-    makeShip(20,100,30,25,"skyblue");
-    makeShip(20,170,50,25,"salmon");
-    makeShip(20,240,30,25,"salmon");
 
-    function makeShip(x,y,width,height,fill){
-        var ship={
-          x:x,
-          y:y,
-          width:width,
-          height:height,
-          right:x+width,
-          bottom:y+height,
-          fill:fill
+    var imgLoadCount=0;
+    for(var i=0;i<items.length;i++){
+        images[i]=document.createElement("img");
+        images[i].onload=function(){
+            if(++imgLoadCount>=items.length){ draw(); }
         }
-        ships.push(ship);
-        return(ship);
+        images[i].src=items[i].url;
     }
 
-    drawAllShips();
+    function draw(){
 
-    function drawAllShips(){
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        for(var i=0;i<ships.length;i++){
-            var ship=ships[i]
-            drawShip(ship);
-            ctx.fillStyle=ship.fill;
-            ctx.fill();
-            ctx.stroke();
+        dropCtx.clearRect(0,0,drop.width,drop.height);
+
+        var canvasX=0;
+        var dropX=0;
+        // 
+        for(var i=0;i<items.length;i++){
+            if(items[i].isDropped){
+                x=dropX*160+10;
+                drawContainer(dropCtx,i,x,20);
+                dropX++;
+                items[i].x=x;
+            }else{
+                x=canvasX*160+10;
+                drawContainer(ctx,i,x,20);
+                canvasX++;
+                items[i].x=x;
+            }
         }
     }
 
-    function drawShip(ship){
-        ctx.beginPath();
-        ctx.moveTo(ship.x,ship.y);
-        ctx.lineTo(ship.right,ship.y);
-        ctx.lineTo(ship.right+10,ship.y+ship.height/2);
-        ctx.lineTo(ship.right,ship.bottom);
-        ctx.lineTo(ship.x,ship.bottom);
-        ctx.closePath();
+
+    // draw image container
+    function drawContainer(context,index,x,y){
+
+        context.beginPath();
+        context.rect(x,y+frameHeight,frameWidth,30);
+        context.fillStyle="black";
+        context.fill();
+        context.beginPath();
+        context.fillStyle="white";
+        context.font="10pt Verdana";
+        context.fillText(items[index].description,x+10,y+frameHeight+18);
+
+        // draw a thumbnail of the image
+        var img=images[index];
+        if(img.width>=img.height){
+            context.drawImage(img,0,0,img.width,img.height,
+                x,y,128,128*img.height/img.width);
+        }else{
+            context.drawImage(img,0,0,img.width,img.height,
+                x,y,128*img.width/img.height,128);  // edited s/b [,128], not [/128]
+        }
+
+        // outer frame (green if selected)
+        context.beginPath();
+        context.rect(x-2,y-2,frameWidth+4,frameHeight+30+4);
+        context.lineWidth=3;
+        context.strokeStyle="lightgray";
+        if(items[index].isSelected){
+            context.strokeStyle="green";
+            context.drawImage(checkmark,x+frameWidth-30,y+frameHeight+3);
+        }
+        context.stroke();
+
     }
 
     function handleMouseDown(e){
-      mouseX=parseInt(e.clientX-offsetX);
-      mouseY=parseInt(e.clientY-offsetY);
+        mouseX=parseInt(e.clientX-offsetX);
+        mouseY=parseInt(e.clientY-offsetY);
 
-      // mousedown stuff here
-      lastX=mouseX;
-      lastY=mouseY;
-      mouseIsDown=true;
-
+        // Put your mousedown stuff here
+        mouseIsDown=true;
     }
 
     function handleMouseUp(e){
+      mouseIsDown=false;
       mouseX=parseInt(e.clientX-offsetX);
       mouseY=parseInt(e.clientY-offsetY);
 
-      // mouseup stuff here
-      mouseIsDown=false;
+      // Put your mouseup stuff here
+      for(var i=0;i<items.length;i++){
+          var item=items[i];
+          // have we clicked on something?
+          if(!item.isDropped && mouseX>=item.x && mouseX<=item.x+frameWidth){
+              // if so, toggle its selection
+              items[i].isSelected=!(items[i].isSelected);
+              draw();
+          }
+      }
+    }
+
+    function handleMouseOut(e){
+      if(!mouseIsDown){return;}
+      mouseX=parseInt(e.clientX-offsetX);
+      mouseY=parseInt(e.clientY-offsetY);
+
+      // Put your mouseOut stuff here
     }
 
     function handleMouseMove(e){
-      if(!mouseIsDown){ return; }
-
       mouseX=parseInt(e.clientX-offsetX);
       mouseY=parseInt(e.clientY-offsetY);
 
-      // mousemove stuff here
-      for(var i=0;i<ships.length;i++){
-          var ship=ships[i];
-          drawShip(ship);
-          if(ctx.isPointInPath(lastX,lastY)){ 
-              ship.x+=(mouseX-lastX);
-              ship.y+=(mouseY-lastY);
-              ship.right=ship.x+ship.width;
-              ship.bottom=ship.y+ship.height;
-          }
-      }
-      lastX=mouseX;
-      lastY=mouseY;
-      drawAllShips();
+      // Put your mousemove stuff here
+
+    }
+
+    function handleDrop(e){
+        for(var i=0;i<items.length;i++){
+            if(items[i].isSelected){
+                items[i].isDropped=true;
+                items[i].isSelected=false;
+                console.log(i);
+            }
+        }
+        draw();
     }
 
     $("#canvas").mousedown(function(e){handleMouseDown(e);});
     $("#canvas").mousemove(function(e){handleMouseMove(e);});
     $("#canvas").mouseup(function(e){handleMouseUp(e);});
+    $("#canvas").mouseout(function(e){handleMouseOut(e);});
+    $("#dropzone").mouseup(function(e){handleDrop(e);});
 
 }); // end $(function(){});
 </script>
@@ -118,6 +172,9 @@ $(function(){
 </head>
 
 <body>
-        <canvas id="canvas" width=300 height=300></canvas>
-    </body>
-    </html>
+    <p>Click an item to toggle it's selection</p>
+    <p>Drag from top to bottom canvas to drop selected items</p>
+    <canvas id="canvas" width=500 height=200></canvas><br>
+    <canvas id="dropzone" width=500 height=200></canvas>
+</body>
+</html>
