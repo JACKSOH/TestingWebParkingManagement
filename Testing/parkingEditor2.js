@@ -1,6 +1,8 @@
 
 var Ecanvas, Ccanvas = false; // canvas objects
 var inEcanvas = false; //check whether the comp dragg
+var del = false;
+var delHover = false;
 var ec, cc = false; //canavas with context objects
 var startX, startY;
 var draggedComp = [];
@@ -10,7 +12,7 @@ var mouseOnCanvas; // declare mouse on which cavas
 var mx, my;//declare mouse location X and Y
 var compStartX, compStartY; //declare componenet origina location
 var overCC = false;; // over component canvas?
-var selectedComp; // index of the Component selecting
+var selectedComp, selectEditComp; // index of the Component selecting
 var EcanvasWidth, EcanvasHeight, CcanvasWidth, CcanvasHeight;
 
 
@@ -89,17 +91,14 @@ function drawComponent() {
         var c = comps[i];
         rectForCC(c.x, c.y, c.w, c.h, c.name);
     }
-
-
-
-
-
 }
 function rectForEC(x, y, w, h, name) { //for Editor Canvas
 
     ec.beginPath();
     ec.lineWidth = "3";
     ec.strokeStyle = "red";
+    ec.font = "10px Arial";
+    ec.fillText(name, x + (w / 2), y + (h / 2));
     ec.rect(x, y, w, h);
     ec.stroke();
 }
@@ -108,6 +107,20 @@ function drawEditor() {
     for (var i = 0; i < draggedComp.length; i++) {
         var c = draggedComp[i];
         rectForEC(c.x, c.y, c.w, c.h, c.name);
+    }
+    if (isDragging) { // draw the cancel button if the comp start dragging
+        var img = new Image();
+        img.onload = function () {
+            context.drawImage(img, 100, 100, 150, 110, 0, 0, 300, 220);
+        }
+        img.src = "img/icons8-delete-50.png";
+        if (delHover) {
+            alert(img.background);
+        }
+       
+        del = { x: 10, y: 10, w: 50, h: 50 };
+        ec.drawImage(img, del.x, del.y, del.w, del.h);
+        
     }
 }
 
@@ -121,41 +134,38 @@ function getMousePos(canvas, evt) { // get mouse position in canvas
 
 function mouseDown(e) {
     if (e.target.id === "compCanvas") { //check box in comp canvas
-
         mouseOnCanvas = new getMousePos(Ccanvas, e);
         mx = mouseOnCanvas.x;
         my = mouseOnCanvas.y;
-
         startX = mx;
         startY = my;
         for (var i = 0; i < comps.length; i++) {//check collife any component
             var c = comps[i];
-
-
             if (mx > c.x && mx < c.x + c.w && my > c.y && my < c.y + c.h) {
                 compStartX = c.x;
                 compStartY = c.y;
                 isDragging = true;
                 //add to dragged component
-                var newComp = new basic(40,40,c.w,c.h,c.name);
+                var newComp = new basic(40, 40, c.w, c.h, c.name);
                 draggedComp.push(newComp);
-
-                document.getElementById("message").innerHTML = isDragging;
                 selectedComp = i;
             }
         }
 
     } else if (e.target.id === "editCanvas") {//for editor
 
-        for (var i = 0; i < drawComponent.length; i++) {
-            var c = drawComponent[i];
+        mouseOnCanvas = new getMousePos(Ecanvas, e);
+        mx = mouseOnCanvas.x;
+        my = mouseOnCanvas.y;
+        startX = mx;
+        startY = my;
+        for (var i = 0; i < draggedComp.length; i++) {
+            var c = draggedComp[i];
             if (mx > c.x && mx < c.x + c.w && my > c.y && my < c.y + c.h) {
+                showDelete();
                 isDragging = true;
                 //add to dragged component
-                var newComp = new basic(40,40,c.w,c.h,c.name);
-                draggedComp.push(newComp);
-                document.getElementById("message").innerHTML = isDragging;
-                selectedComp = i;
+                selectEditComp = i;
             }
         }
     }
@@ -166,27 +176,41 @@ function mouseUp(e) {
 
     if (e.target.id === "compCanvas") { //check box in comp canvas
 
-        if (!overCC) {
-            comps[selectedComp].x = compStartX;
-            comps[selectedComp].y = compStartY;
-        }
+
+        comps[selectedComp].x = compStartX;
+        comps[selectedComp].y = compStartY;
+
         isDragging = false;
         selectedComp = false;
 
     } else if (e.target.id === "editCanvas") {
+        mouseOnCanvas = new getMousePos(Ecanvas, e);
+        mx = mouseOnCanvas.x;
+        my = mouseOnCanvas.y;
+
+        if (mx > del.x && mx < del.x + del.w && my > del.y && my < del.y + del.h) {
+            var selName = draggedComp[selectEditComp].name; // save the selected dragged component name before it deleted
+            draggedComp.splice(selectEditComp, 1);
+            alert(selName + " has been deleted.");
+
+        }
         isDragging = false;
-        selectedComp = false;
-        overCC = false;
+        selectEditComp = false;
+
     }
 
 
 }
 function mouseOut(e) {
-    
+
     if (e.target.id === "compCanvas") {
-       
-    } else if(e.target.id === "editCanvas"){
-         
+        comps[selectedComp].x = compStartX;
+        comps[selectedComp].y = compStartY;
+
+        isDragging = false;
+        selectedComp = false;
+    } else if (e.target.id === "editCanvas") {
+
     }
 }
 function mouseMove(e) {
@@ -196,43 +220,40 @@ function mouseMove(e) {
             mouseOnCanvas = new getMousePos(Ccanvas, e);
             mxt = mouseOnCanvas.x;
             myt = mouseOnCanvas.y;
-
             var dx = mxt - startX; // distance of the mouse move
             var dy = myt - startY;
-
             comps[selectedComp].x += dx;
             comps[selectedComp].y += dy;
+          
+           
 
-            if (myt >= CcanvasHeight - 10) { //check whether the componenet is going to Editor canvas
-                document.getElementById("message1").innerHTML = "trig";
-                if (!overCC) {
-                    overCC = true;
-                    var newComp = new basic(comps[selectedComp].x, 3, comps[selectedComp].w, comps[selectedComp].h, comps[selectedComp].name);
-                    draggedComp.push(newComp);
-                }
-                
-            } else {
-                draggedComp.splice(draggedComp.length - 1, 1);
-                overCC = false;
-                document.getElementById("message1").innerHTML = "not trig";
-            }
 
 
         } else if (e.target.id === "editCanvas") {
-            mouseOnCanvas = new getMousePos(Ccanvas, e);
+
+            mouseOnCanvas = new getMousePos(Ecanvas, e);
             mxt = mouseOnCanvas.x;
             myt = mouseOnCanvas.y;
-            
+
             var dx = mxt - startX; // distance of the mouse move
             var dy = myt - startY;
-            draggedComp[selectedComp].x += dx;
-            draggedComp[selectedComp].y += dy;
+            draggedComp[selectEditComp].x += dx;
+            draggedComp[selectEditComp].y += dy;
             document.getElementById("message").innerHTML = dx;
+            if (mxt > del.x && mxt < del.x + del.w && myt > del.y && myt < del.y + del.h) {
+                alert();
+                delHover = true;
+            } else {
+                delHover = false;
+            }
         }
 
         startX = mxt;
         startY = myt;
     }
 }
+function showDelete() {
 
+
+}
 
